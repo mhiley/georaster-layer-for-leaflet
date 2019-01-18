@@ -14,10 +14,14 @@ var GeoRasterLayer = L.GridLayer.extend({
 
             if (options.updateWhenZooming === undefined) options.updateWhenZooming = false;
 
+            this.chromaScaleArgs = options.chromaScale;
+            this.dataMinArg = options.dataMin;
+            this.dataMaxArg = options.dataMax;
+
             let georaster = options.georaster;
             this.georaster = georaster;
 
-            this.scale = chroma.scale();
+            this.scale = chroma.scale(this.chromaScaleArgs);
 
             /*
                 Unpacking values for use later.
@@ -233,7 +237,11 @@ var GeoRasterLayer = L.GridLayer.extend({
                           let number_of_values = values.length;
                           if (number_of_values == 1) {
                               let value = values[0];
-                              if (ranges) {
+                              if (this.dataMinArg !== undefined && this.dataMaxArg !== undefined) {
+                                if (value != no_data_value) {
+                                    color = scale( (values[0] - this.dataMinArg) / (this.dataMaxArg - this.dataMinArg) ).hex();
+                                }
+                              } else if (ranges) {
                                 if (value != no_data_value) {
                                     color = scale( (values[0] - mins[0]) / ranges[0] ).hex();
                                 }
